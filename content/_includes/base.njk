@@ -1,10 +1,13 @@
+---
+title: My Rad Blog
+---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Rad Markdown Blog Post</title>
+    <title>{{ title }}</title>
     <link href="/css/main.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
@@ -14,12 +17,7 @@
         <div>
             <a href="/">< Home</a>
         </div>
-        <div>
-    <h1>My Rad Markdown Blog Post</h1>
-
-    <p>I'm a <em>simple</em> <em>note</em> in markdown.</p>
-
-</div>
+        {{ content | safe }}
         </div>
         <div id="right"></div>
     </div>

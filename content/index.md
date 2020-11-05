@@ -1,7 +1,7 @@
 ---
 layout: index.njk
-title: Index
+title: Welcome
 ---
 # {{ title }}
 
-Hello world
+About me blah blah ...

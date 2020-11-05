@@ -1,0 +1,40 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5em;
+    font-size: 14px;
+
+    color: #c5c6c7;
+    background-color: #0b0c10;
+}
+
+a {
+    color: #66fcf1;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #45a29e;
+}
+
+h1 {
+    color: #66fcf1;
+    font-weight: bold;
+    font-style: initial;
+}
+
+#center  {
+    background-color: #0b0c10;
+    padding: 20px;
+}
+
+.container {
+    background-color: #0b0c10;
+
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+}
+
