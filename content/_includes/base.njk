@@ -11,15 +11,15 @@ title: My Rad Blog
     <link href="/css/main.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <div class="container">
-        <div id="left"></div>
-        <div id="center">
-        <div>
-            <a href="/">< Home</a>
+    <div id="container">
+
+        <div id="content">
+          <div>
+              <a href="/">< Home</a>
+          </div>
+          {{ content | safe }}
         </div>
-        {{ content | safe }}
-        </div>
-        <div id="right"></div>
+
     </div>
   </body>
 </html>
