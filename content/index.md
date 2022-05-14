@@ -1,7 +1,7 @@
 ---
 layout: index.njk
-title: Welcome
+title: b7i.de
 ---
 # {{ title }}
 
-About me blah blah ...
+Some notes I mostly write to remember stuff I come across.
