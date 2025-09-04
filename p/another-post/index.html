@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<head>
+    <title>A sample post</title>
+    <link rel="stylesheet" type="text/css" href="/static/neat.css">
+    <link rel="stylesheet" type="text/css" href="/static/custom.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://b7i.de/p/a-sample-post">
+</head>
+
+<body>
+<div id="content"></div>
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+<script>
+document.getElementById('content').innerHTML = marked.parse(`
+
+
+# Why things break
+
+According to my family, I have an uncanny power to fix computers just by showing up and standing next to them. Sometimes issues would resolve just because they would try again in front of me.
+Often problems disappear because I developed an intuition of what expectations software developers have relied on or how apps store what they know about you or the world.
+
+## Wrong expectations
+
+Every day has 24 hours. Right or Wrong? Wrong. There is a 25 hour day in November and a 23 hour day in March due to daylight savings time.
+Street addresses contain street names. Wrong. In Japan streets don’t have a name and buildings are referred to via block numbers.
+People use more than one name, names change, can be insanely long or written with unexpected characters. 
+Some software changes the length of a name. If it e.g. contains the German letter “ß” it will become two “S” in uppercase, so suddenly your name will be one character longer).
+
+The real world is often too messy to neatly model it in software.
+A lot of these special cases are handled correctly by programmers. But when you start doing unexpected things, the likelihood of things breaking increases rapidly.  I’m sure people born on a February 29th more often run into issues than those born on February 28th.
+
+So one way of making sure things don’t break is to stick to a well-trodden path. When the airline says the name on your ticket should be the exact name from your passport they mean it. And not only for border entry reasons, but OMG have you ever seen the software used in ticketing for air travel. 
+
+You should and could expected all systems to be properly written and tested, but in reality most of it is a big ball of mud held together by spit.
+
+- [Falsehoods programmers believe about time: @noahsussman: Infinite Undo](https://infiniteundo.com/post/25326999628/falsehoods-programmers-believe-about-time)
+- [Falsehoods Programmers Believe About Names               |         Kalzumeus Software](https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/)
+- [Falsehoods programmers believe about addresses](https://www.mjt.me.uk/posts/falsehoods-programmers-believe-about-addresses/)
+- [Falsehoods programmers believe about geography – Thias の blog](https://wiesmann.codiferes.net/wordpress/?p=15187&lang=en)
+
+## State of the world
+
+Did you try turning it on and off again? This line from the show IT Crowd is funny because it’s true. But why does that work more often than not?
+On starting up, each device and the software running on it builds up knowledge about what’s currently known about its little world. Which buttons or lights or settings in my app are on or off. This is know as its current state.
+Then, while you’re using it, software is modifying this state. Settings are activated. Fonts selected. Some website saves your login preferences or your identity. 
+If any of these state changing things don’t agree with each other or contain errors (false expectations or assumptions), you end up with a broken state that the creator of this system maybe did not anticipate.
+Since you don’t know what exactly went wrong, you can try to get back to the initial, unbroken state of the world by trying turning it on and off again., which makes the computer forget what he knows about you.
+That works for things that a computer keeps in its “short term memory” which gets erased when it looses power.
+Often though, software saves its state, so when you visit the app again you can just continue where you left, or a website remembers changes you made so you don’t have to do them again.
+
+* Log out and log into the app/site again.
+* Delete the app and reinstall it.
+* Reset your phone to factory settings.
+* Buy a new phone. 
+
+
+
+
+
+`);
+</script>
+
+
+<body
+
+</html>
