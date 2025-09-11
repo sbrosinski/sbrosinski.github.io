@@ -1,8 +1,8 @@
 {
-  "name": "Weekly Calendar",
-  "short_name": "Calendar",
-  "description": "Weekly school schedule calendar",
-  "start_url": "./index.html",
+  "name": "8c Calendar",
+  "short_name": "8c Calendar",
+  "description": "school calendar",
+  "start_url": "./index.html?school=hh5811&class=992",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2c3e50",
