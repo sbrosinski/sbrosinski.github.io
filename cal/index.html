@@ -13,17 +13,14 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
+            background-color: white;
+            padding: 0;
+            margin: 0;
         }
 
         .calendar-container {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
         .calendar-header {
@@ -37,7 +34,6 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: 60px repeat(5, 1fr);
-            border: 1px solid #ddd;
         }
 
         .time-column {
@@ -169,8 +165,6 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 8px;
             background: white;
         }
         
@@ -184,9 +178,6 @@
 
         /* Mobile responsive styles */
         @media (max-width: 768px) {
-            .calendar-container {
-                padding: 10px;
-            }
             
             
             .week-navigation {
@@ -250,9 +241,6 @@
         }
 
         @media (max-width: 480px) {
-            .calendar-container {
-                padding: 5px;
-            }
             
             
             .nav-button {
