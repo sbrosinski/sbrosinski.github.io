@@ -65,6 +65,12 @@
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            transition: background-color 0.3s ease;
+        }
+
+        .day-header.current-day {
+            background: #87ceeb;
+            color: #2c3e50;
         }
 
         .day-column {
@@ -428,6 +434,7 @@
         function updateWeekDisplay(weekStart) {
             const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
             const headerIds = ['monday-header', 'tuesday-header', 'wednesday-header', 'thursday-header', 'friday-header'];
+            const today = new Date();
             
             // Update each day header with day name and date
             for (let i = 0; i < 5; i++) {
@@ -437,6 +444,14 @@
                 const dayHeader = document.getElementById(headerIds[i]);
                 const dateString = `${currentDate.getDate()}.${currentDate.getMonth() + 1}.`;
                 dayHeader.textContent = `${dayNames[i]} ${dateString}`;
+                
+                // Remove current-day class first
+                dayHeader.classList.remove('current-day');
+                
+                // Check if this date is today
+                if (currentDate.toDateString() === today.toDateString()) {
+                    dayHeader.classList.add('current-day');
+                }
             }
         }
         
