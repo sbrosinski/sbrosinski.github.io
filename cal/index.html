@@ -159,6 +159,112 @@
             font-weight: 300;
             min-width: 300px;
             text-align: center;
+            flex: 1;
+        }
+
+        .nav-buttons-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .calendar-container {
+                padding: 10px;
+            }
+            
+            .calendar-header h1 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+            
+            .week-navigation {
+                flex-direction: column;
+                gap: 15px;
+                margin-top: 10px;
+            }
+            
+            .week-range {
+                order: 1;
+                font-size: 14px;
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+            
+            .nav-buttons-container {
+                order: 2;
+                display: flex;
+                gap: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .nav-button {
+                flex: 1;
+                max-width: 150px;
+                font-size: 13px;
+                padding: 10px 12px;
+                min-width: auto;
+            }
+            
+            /* Horizontal scrolling for calendar */
+            .calendar-grid {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                min-width: 600px; /* Minimum width to ensure readability */
+            }
+            
+            /* Adjust time labels for mobile */
+            .time-label {
+                font-size: 10px !important;
+                padding: 2px !important;
+                writing-mode: horizontal-tb;
+            }
+            
+            /* Adjust day headers for mobile */
+            .day-header {
+                font-size: 12px;
+                padding: 8px 4px;
+            }
+            
+            /* Adjust event styling for mobile */
+            .event {
+                font-size: 10px;
+                padding: 2px 4px;
+                min-height: 20px;
+            }
+            
+            .event .event-subject {
+                font-size: 10px;
+                font-weight: 600;
+            }
+            
+            .event .event-teacher {
+                font-size: 9px;
+            }
+            
+            .event .event-room {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-container {
+                padding: 5px;
+            }
+            
+            .calendar-header h1 {
+                font-size: 20px;
+            }
+            
+            .nav-button {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            
+            .week-range {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -167,9 +273,11 @@
         <div class="calendar-header">
             <h1>Weekly Calendar</h1>
             <div class="week-navigation">
-                <button id="prevWeek" class="nav-button">← Previous Week</button>
                 <div id="weekRange" class="week-range">Monday - Friday, 8:00 AM - 3:30 PM</div>
-                <button id="nextWeek" class="nav-button">Next Week →</button>
+                <div class="nav-buttons-container">
+                    <button id="prevWeek" class="nav-button">← Previous Week</button>
+                    <button id="nextWeek" class="nav-button">Next Week →</button>
+                </div>
             </div>
         </div>
         
@@ -206,8 +314,8 @@
         
         // Get configuration from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const ANONYMOUS_SCHOOL = urlParams.get('school') || 'hh5811'; // Default to hh5811
-        const CLASS_RESOURCE = urlParams.get('class') || '992'; // Default class ID
+        const ANONYMOUS_SCHOOL = urlParams.get('school');
+        const CLASS_RESOURCE = urlParams.get('class');
         const WEBUNTIS_SERVER = urlParams.get('server') || 'ikarus.webuntis.com'; // Default server
         
         console.log('Configuration:');
