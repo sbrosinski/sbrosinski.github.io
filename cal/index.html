@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .calendar-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .calendar-header h1 {
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+            border: 1px solid #ddd;
+        }
+
+        .time-column {
+            background: #f8f9fa;
+            border-right: 2px solid #ddd;
+        }
+
+        .time-slot {
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #eee;
+            font-size: 10px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .day-header {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .day-column {
+            border-right: 1px solid #ddd;
+        }
+
+        .day-column:last-child {
+            border-right: none;
+        }
+
+        .calendar-cell {
+            height: 12px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #ddd;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .calendar-cell:hover {
+            background-color: #f0f8ff;
+        }
+
+        .calendar-cell:last-child {
+            border-bottom: none;
+        }
+
+        .time-label {
+            background: #f8f9fa;
+            border-right: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #666;
+            font-weight: 500;
+            height: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .time-label:last-child {
+            border-bottom: none;
+        }
+
+        .empty-cell {
+            background: #fafafa;
+        }
+
+        .empty-cell:hover {
+            background-color: #f0f8ff;
+        }
+
+        /* Week navigation styles */
+        .week-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .week-range {
+            color: white;
+            font-size: 16px;
+            font-weight: 300;
+            min-width: 300px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <h1>Weekly Calendar</h1>
+            <div class="week-navigation">
+                <button id="prevWeek" class="nav-button">← Previous Week</button>
+                <div id="weekRange" class="week-range">Monday - Friday, 8:00 AM - 3:30 PM</div>
+                <button id="nextWeek" class="nav-button">Next Week →</button>
+            </div>
+        </div>
+        
+        <div class="calendar-grid">
+            <!-- Time column header -->
+            <div class="time-column">
+                <div class="time-label" style="height: 40px; background: #34495e; color: white; font-weight: 600;">TIME</div>
+            </div>
+            
+            <!-- Day headers -->
+            <div class="day-header">Monday</div>
+            <div class="day-header">Tuesday</div>
+            <div class="day-header">Wednesday</div>
+            <div class="day-header">Thursday</div>
+            <div class="day-header">Friday</div>
+            
+            <!-- Time slots and calendar cells -->
+            <div class="time-column" id="time-column">
+                <!-- Time labels will be generated by JavaScript -->
+            </div>
+            
+            <!-- Day columns will be generated by JavaScript -->
+            <div class="day-column" id="monday-column"></div>
+            <div class="day-column" id="tuesday-column"></div>
+            <div class="day-column" id="wednesday-column"></div>
+            <div class="day-column" id="thursday-column"></div>
+            <div class="day-column" id="friday-column"></div>
+        </div>
+    </div>
+
+    <script>
+        // Week state management
+        let currentWeekStart = null;
+        
+        // Get configuration from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const ANONYMOUS_SCHOOL = urlParams.get('school') || 'hh5811'; // Default to hh5811
+        const CLASS_RESOURCE = urlParams.get('class') || '992'; // Default class ID
+        const WEBUNTIS_SERVER = urlParams.get('server') || 'ikarus.webuntis.com'; // Default server
+        
+        console.log('Configuration:');
+        console.log('- school:', ANONYMOUS_SCHOOL);
+        console.log('- class resource:', CLASS_RESOURCE);
+        console.log('- webuntis server:', WEBUNTIS_SERVER);
+        
+        // API configuration - using CORS proxy for GitHub Pages deployment
+        // Option 1: cors-anywhere (requires demo request but more reliable)
+        // const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+        
+        // Option 2: allorigins (sometimes has issues with complex APIs)
+        // const CORS_PROXY = 'https://api.allorigins.win/get?url=';
+        
+        // Option 3: corsproxy.io (simple and reliable)
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        // Simple toggle for deployment mode
+        // Set this to false ONLY when running with proxy_server.py
+        let USE_CORS_PROXY = true; // Always use CORS proxy for static hosting (GitHub Pages simulation)
+        
+        console.log('Environment detection:');
+        console.log('- hostname:', window.location.hostname);
+        console.log('- port:', window.location.port);
+        console.log('- pathname:', window.location.pathname);
+        console.log('USE_CORS_PROXY:', USE_CORS_PROXY);
+        
+        const API_BASE_URL = USE_CORS_PROXY ? 
+            '' : // Will be constructed with CORS proxy
+            '/api/timetable/entries'; // Local proxy endpoint
+        const API_PARAMS = {
+            format: 2,
+            resourceType: 'CLASS',
+            resources: CLASS_RESOURCE,
+            periodTypes: '',
+            timetableType: 'STANDARD'
+        };
+        
+        const API_HEADERS = USE_CORS_PROXY ? 
+            {
+                'Content-Type': 'application/json',
+                'anonymous-school': ANONYMOUS_SCHOOL
+                // corsproxy.io forwards headers directly
+            } : 
+            { 
+                'Content-Type': 'application/json',
+                'anonymous-school': ANONYMOUS_SCHOOL
+            };
+        
+        // Week calculation functions
+        function getCurrentWeekStart() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+            
+            // Calculate days to subtract to get to Monday
+            const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            
+            // Create new date and go back the calculated days
+            const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - daysToMonday);
+            monday.setHours(0, 0, 0, 0);
+            
+            return monday;
+        }
+        
+        function getWeekEnd(weekStart) {
+            const friday = new Date(weekStart);
+            friday.setDate(weekStart.getDate() + 4); // Friday is 4 days after Monday
+            return friday;
+        }
+        
+        function getPreviousWeek(weekStart) {
+            const prevWeek = new Date(weekStart);
+            prevWeek.setDate(weekStart.getDate() - 7);
+            return prevWeek;
+        }
+        
+        function getNextWeek(weekStart) {
+            const nextWeek = new Date(weekStart);
+            nextWeek.setDate(weekStart.getDate() + 7);
+            return nextWeek;
+        }
+        
+        function formatDateForAPI(date) {
+            // Use local date components to avoid timezone issues with toISOString()
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function formatDateForDisplay(date) {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+        
+        function buildAPIUrl(weekStart) {
+            const weekEnd = getWeekEnd(weekStart);
+            const params = new URLSearchParams({
+                ...API_PARAMS,
+                start: formatDateForAPI(weekStart),
+                end: formatDateForAPI(weekEnd)
+            });
+            
+            console.log('buildAPIUrl - USE_CORS_PROXY:', USE_CORS_PROXY);
+            
+            if (USE_CORS_PROXY) {
+                // Build the original WebUntis API URL with dynamic server
+                const webuntisUrl = `https://${WEBUNTIS_SERVER}/WebUntis/api/rest/view/v1/timetable/entries?${params.toString()}`;
+                
+                // corsproxy.io format: https://corsproxy.io/?https://target-url.com
+                const corsUrl = `${CORS_PROXY}${webuntisUrl}`;
+                console.log('CORS URL:', corsUrl);
+                return corsUrl;
+            } else {
+                // Use local proxy
+                return `${API_BASE_URL}?${params.toString()}`;
+            }
+        }
+        
+        function updateWeekDisplay(weekStart) {
+            const weekEnd = getWeekEnd(weekStart);
+            const weekRangeElement = document.getElementById('weekRange');
+            weekRangeElement.textContent = `${formatDateForDisplay(weekStart)} - ${formatDateForDisplay(weekEnd)}, 8:00 AM - 3:30 PM`;
+        }
+        
+        // Function to preserve URL parameters when navigating
+        function updateURLWithWeek(weekStart) {
+            const currentParams = new URLSearchParams(window.location.search);
+            const newUrl = new URL(window.location);
+            newUrl.search = currentParams.toString();
+            
+            // Update the browser URL without reloading the page
+            window.history.pushState({}, '', newUrl);
+        }
+
+        // Color mapping for different subjects
+        const subjectColors = {
+            'Mathe': 'green',
+            'Deutsch': 'yellow',
+            'Englisch': 'blue',
+            'Physik': 'purple',
+            'Chemie': 'orange',
+            'Biologie': 'teal',
+            'Geschichte': 'brown',
+            'Geographie': 'pink',
+            'Informatik': 'purple',
+            'Sport': 'orange',
+            'Spanisch': 'teal',
+            'Theater': 'pink',
+            'Kunst': 'brown',
+            'Französisch': 'blue',
+            'Philosophie': 'purple',
+            'Religion': 'brown',
+            'PLUS Englisch': 'blue',
+            'PLUS Projekt': 'teal',
+            'überfachliche Stunde': 'gray',
+            'default': 'gray'
+        };
+
+        // Time slot mapping (8:00 AM to 3:30 PM in 5-minute intervals)
+        const timeSlots = [];
+        for (let hour = 8; hour <= 15; hour++) {
+            for (let minute = 0; minute < 60; minute += 5) {
+                if (hour === 15 && minute > 30) break; // Stop at 15:30
+                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                timeSlots.push(timeString);
+            }
+        }
+
+        // Day mapping
+        const dayMapping = {
+            1: 0, // Monday
+            2: 1, // Tuesday
+            3: 2, // Wednesday
+            4: 3, // Thursday
+            5: 4  // Friday
+        };
+
+        // Room prioritization for parallel classes
+        const preferredRooms = ['209', 'E 19'];
+        
+        // Function to select the best event from parallel events
+        function selectBestEvent(events) {
+            if (events.length === 1) {
+                return events[0];
+            }
+            
+            console.log(`Found ${events.length} parallel events, selecting best one:`, events);
+            
+            // First priority: events in preferred rooms
+            for (const preferredRoom of preferredRooms) {
+                const eventInPreferredRoom = events.find(event => {
+                    const room = event.position3 && event.position3[0] ? event.position3[0].current.displayName : '';
+                    return room === preferredRoom;
+                });
+                if (eventInPreferredRoom) {
+                    console.log(`Selected event in preferred room ${preferredRoom}:`, eventInPreferredRoom);
+                    return eventInPreferredRoom;
+                }
+            }
+            
+            // Fallback: return the first event if no preferred room found
+            console.log('No preferred room found, using first event:', events[0]);
+            return events[0];
+        }
+
+        // Function to check if two events overlap in time
+        function eventsOverlap(event1, event2) {
+            const start1 = new Date(event1.duration.start);
+            const end1 = new Date(event1.duration.end);
+            const start2 = new Date(event2.duration.start);
+            const end2 = new Date(event2.duration.end);
+            
+            // Events overlap if one starts before the other ends
+            return start1 < end2 && start2 < end1;
+        }
+
+        // Function to remove overlapping events, keeping preferred ones
+        function removeOverlappingEvents(events) {
+            if (events.length <= 1) return events;
+            
+            // Sort events by start time
+            const sortedEvents = [...events].sort((a, b) => 
+                new Date(a.duration.start) - new Date(b.duration.start)
+            );
+            
+            const finalEvents = [];
+            
+            for (const currentEvent of sortedEvents) {
+                // Always add EVENT type lessons regardless of overlaps
+                if (currentEvent.type === 'EVENT') {
+                    finalEvents.push(currentEvent);
+                    const subject = currentEvent.position2?.[0]?.current?.longName || 'Event';
+                    console.log(`🎉 Added EVENT (always displayed): ${subject}`);
+                    continue;
+                }
+                
+                let shouldAdd = true;
+                
+                // Check if this event overlaps with any already selected event
+                for (const existingEvent of finalEvents) {
+                    // Skip overlap check if existing event is an EVENT
+                    if (existingEvent.type === 'EVENT') {
+                        continue;
+                    }
+                    
+                    if (eventsOverlap(currentEvent, existingEvent)) {
+                        console.log(`🔍 Overlap detected between:`, {
+                            existing: {
+                                type: existingEvent.type,
+                                subject: existingEvent.position2?.[0]?.current?.longName,
+                                room: existingEvent.position3?.[0]?.current?.displayName,
+                                time: `${existingEvent.duration.start} - ${existingEvent.duration.end}`
+                            },
+                            current: {
+                                type: currentEvent.type,
+                                subject: currentEvent.position2?.[0]?.current?.longName,
+                                room: currentEvent.position3?.[0]?.current?.displayName,
+                                time: `${currentEvent.duration.start} - ${currentEvent.duration.end}`
+                            }
+                        });
+                        
+                        // Check if current event has preferred room
+                        const currentRoom = currentEvent.position3?.[0]?.current?.displayName || '';
+                        const existingRoom = existingEvent.position3?.[0]?.current?.displayName || '';
+                        
+                        const currentIsPreferred = preferredRooms.includes(currentRoom);
+                        const existingIsPreferred = preferredRooms.includes(existingRoom);
+                        
+                        if (currentIsPreferred && !existingIsPreferred) {
+                            // Replace existing with current (preferred room)
+                            const index = finalEvents.indexOf(existingEvent);
+                            finalEvents[index] = currentEvent;
+                            console.log(`✅ Replaced with preferred room event: ${currentRoom}`);
+                        } else {
+                            // Skip current event (keep existing)
+                            console.log(`❌ Skipped overlapping event: ${currentRoom}`);
+                        }
+                        shouldAdd = false;
+                        break;
+                    }
+                }
+                
+                if (shouldAdd) {
+                    finalEvents.push(currentEvent);
+                    const room = currentEvent.position3?.[0]?.current?.displayName || '';
+                    console.log(`✅ Added non-overlapping event: ${room}`);
+                }
+            }
+            
+            console.log(`📊 Overlap resolution: ${events.length} → ${finalEvents.length} events`);
+            return finalEvents;
+        }
+
+        // Function to get time slot index
+        function getTimeSlotIndex(timeString) {
+            // Handle ISO datetime format (2025-09-08T08:00 -> 08:00)
+            let time;
+            if (timeString.includes('T')) {
+                time = timeString.split('T')[1].substring(0, 5); // Extract HH:MM from ISO format
+            } else {
+                time = timeString.substring(0, 5); // Extract HH:MM from regular format
+            }
+            const index = timeSlots.indexOf(time);
+            console.log(`getTimeSlotIndex: "${timeString}" -> "${time}" -> index ${index}`);
+            return index;
+        }
+
+        // Function to calculate event height based on duration
+        function calculateEventHeight(startTime, endTime) {
+            const startIndex = getTimeSlotIndex(startTime);
+            const endIndex = getTimeSlotIndex(endTime);
+            const duration = endIndex - startIndex;
+            return duration * 12; // 12px per 5-minute slot (60px per 30-minute slot)
+        }
+
+        // Function to create event element
+        function createEventElement(eventData) {
+            const eventDiv = document.createElement('div');
+            
+            // Add special classes for canceled/changed events
+            const canceledClass = eventData.isCanceled ? ' canceled' : '';
+            const changedClass = eventData.isChanged || eventData.hasSubstitution ? ' changed' : '';
+            eventDiv.className = `event ${eventData.color}${canceledClass}${changedClass}`;
+            
+            const height = calculateEventHeight(eventData.startTime, eventData.endTime);
+            eventDiv.style.height = `${height}px`;
+            eventDiv.style.zIndex = '10';
+            
+            // Add status indicators
+            let statusIndicator = '';
+            if (eventData.isCanceled) {
+                statusIndicator = '<div class="canceled-indicator">CANCELED</div>';
+            } else if (eventData.isChanged || eventData.hasSubstitution) {
+                statusIndicator = '<div class="changed-indicator">SUBSTITUTION</div>';
+            }
+            
+            // Build content with substitution info
+            let content = `
+                ${statusIndicator}
+                <div class="event-title">${eventData.subject}</div>
+                <div class="event-subtitle">${eventData.teacher}</div>
+                <div class="event-location">${eventData.room}</div>
+            `;
+            
+            // Add original info if there's a substitution
+            if (eventData.hasSubstitution) {
+                const originalInfo = [];
+                if (eventData.originalTeacher) originalInfo.push(`was: ${eventData.originalTeacher}`);
+                if (eventData.originalSubject) originalInfo.push(`was: ${eventData.originalSubject}`);
+                if (eventData.originalRoom) originalInfo.push(`was: ${eventData.originalRoom}`);
+                
+                if (originalInfo.length > 0) {
+                    content += `<div class="original-info">${originalInfo.join(' | ')}</div>`;
+                }
+            }
+            
+            eventDiv.innerHTML = content;
+            return eventDiv;
+        }
+
+        // Function to populate calendar with API data
+        function populateCalendar(data) {
+            console.log('populateCalendar called with:', data);
+            
+            // Clear existing events
+            document.querySelectorAll('.event').forEach(event => event.remove());
+            
+            // Clear existing sample events
+            document.querySelectorAll('.calendar-cell').forEach(cell => {
+                cell.innerHTML = '';
+            });
+            
+            // Friday issue has been resolved - timezone bug in formatDateForAPI was fixed
+
+            if (data && data.days) {
+                console.log('Processing', data.days.length, 'days');
+                
+                data.days.forEach((day, dayIndex) => {
+                    console.log(`Processing day ${dayIndex}:`, day.date);
+                    
+                    // Extract day of week from date (2025-09-08 -> Monday = 1)
+                    const date = new Date(day.date);
+                    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc.
+                    
+                    console.log(`Day ${dayIndex} (${day.date}) is day of week: ${dayOfWeek}`);
+                    
+                    // Map day to column index (Monday=1 -> 0, Tuesday=2 -> 1, etc.)
+                    const dayColumnIndex = dayMapping[dayOfWeek];
+                    console.log(`Day mapping: dayOfWeek ${dayOfWeek} -> column index ${dayColumnIndex}`);
+                    
+                    if (dayColumnIndex === undefined) {
+                        console.log(`Skipping day ${dayIndex} - day ${dayOfWeek} not in range (weekend)`);
+                        return; // Skip weekends
+                    }
+                    
+                    // Get the day column
+                    const dayColumns = document.querySelectorAll('.day-column');
+                    const dayColumn = dayColumns[dayColumnIndex];
+                    
+                    console.log(`Day column found:`, dayColumn ? `yes (${dayColumn.id})` : 'NO!');
+                    
+                    if (day.gridEntries && day.gridEntries.length > 0) {
+                        console.log(`Processing ${day.gridEntries.length} grid entries for day ${dayIndex}`);
+                        
+                        // Group events by start time to handle parallel classes
+                        const eventsByTime = {};
+                        
+                        day.gridEntries.forEach((entry, entryIndex) => {
+                            const startTime = entry.duration.start;
+                            if (!eventsByTime[startTime]) {
+                                eventsByTime[startTime] = [];
+                            }
+                            eventsByTime[startTime].push(entry);
+                        });
+                        
+                        // Select best event for each start time
+                        const selectedEvents = [];
+                        Object.keys(eventsByTime).forEach(startTime => {
+                            const eventsAtTime = eventsByTime[startTime];
+                            console.log(`Processing ${eventsAtTime.length} events at time ${startTime}`);
+                            
+                            // Select the best event if there are multiple
+                            const selectedEvent = selectBestEvent(eventsAtTime);
+                            selectedEvents.push(selectedEvent);
+                        });
+                        
+                        // Remove overlapping events
+                        const finalEvents = removeOverlappingEvents(selectedEvents);
+                        
+                        // Process each final selected event
+                        finalEvents.forEach(selectedEvent => {
+                            
+                            // Extract time from duration
+                            const startTime = selectedEvent.duration.start;
+                            const endTime = selectedEvent.duration.end;
+                            
+                            // Extract subject, teacher, and room from position arrays
+                            const subject = selectedEvent.position2 && selectedEvent.position2[0] ? selectedEvent.position2[0].current.longName : 'Unknown Subject';
+                            const teacher = selectedEvent.position1 && selectedEvent.position1[0] ? selectedEvent.position1[0].current.longName : 'Unknown Teacher';
+                            const room = selectedEvent.position3 && selectedEvent.position3[0] ? selectedEvent.position3[0].current.displayName : 'Unknown Room';
+                            
+                            // Check if the event is canceled or changed
+                            const isCanceled = selectedEvent.status === 'CANCELLED';
+                            const isChanged = selectedEvent.status === 'CHANGED';
+                            
+                            // Check for substitutions (teacher/subject/room changes)
+                            const hasSubstitution = selectedEvent.position1?.[0]?.removed || 
+                                                   selectedEvent.position2?.[0]?.removed || 
+                                                   selectedEvent.position3?.[0]?.removed;
+                            
+                            if (isChanged || hasSubstitution) {
+                                console.log('🔄 CLASS SUBSTITUTION DETECTED:', {
+                                    status: selectedEvent.status,
+                                    statusDetail: selectedEvent.statusDetail,
+                                    substitutionText: selectedEvent.substitutionText,
+                                    teacher: {
+                                        current: selectedEvent.position1?.[0]?.current,
+                                        removed: selectedEvent.position1?.[0]?.removed
+                                    },
+                                    subject: {
+                                        current: selectedEvent.position2?.[0]?.current,
+                                        removed: selectedEvent.position2?.[0]?.removed
+                                    },
+                                    room: {
+                                        current: selectedEvent.position3?.[0]?.current,
+                                        removed: selectedEvent.position3?.[0]?.removed
+                                    }
+                                });
+                            }
+                            
+                            console.log(`Selected event details:`, {
+                                startTime, endTime, subject, teacher, room, isCanceled
+                            });
+                            
+                            // Get the time slot index
+                            const timeSlotIndex = getTimeSlotIndex(startTime);
+                            if (timeSlotIndex === -1) {
+                                console.log(`Skipping event - time ${startTime} not in range`);
+                                return; // Time not in our range
+                            }
+                            
+                            console.log(`Event mapped to day ${dayColumnIndex}, time slot ${timeSlotIndex}`);
+                            
+                            // Get the specific cell
+                            const cells = dayColumn.querySelectorAll('.calendar-cell');
+                            const targetCell = cells[timeSlotIndex];
+                            
+                            if (targetCell) {
+                                // Determine color based on subject
+                                const color = subjectColors[subject] || subjectColors.default;
+                                
+                                // Create event data
+                                const eventData = {
+                                    subject: subject,
+                                    teacher: teacher,
+                                    room: room,
+                                    startTime: startTime,
+                                    endTime: endTime,
+                                    color: color,
+                                    isCanceled: isCanceled,
+                                    isChanged: isChanged,
+                                    hasSubstitution: hasSubstitution,
+                                    substitutionText: selectedEvent.substitutionText,
+                                    originalTeacher: selectedEvent.position1?.[0]?.removed?.longName,
+                                    originalSubject: selectedEvent.position2?.[0]?.removed?.longName,
+                                    originalRoom: selectedEvent.position3?.[0]?.removed?.displayName
+                                };
+                                
+                                console.log(`Creating event:`, eventData);
+                                
+                                // Create and append event element
+                                const eventElement = createEventElement(eventData);
+                                targetCell.appendChild(eventElement);
+                                
+                                console.log(`✅ Event added to calendar:`, eventData.subject, 'at', eventData.startTime, `on day ${dayOfWeek} (${date.toDateString()})`);
+                            } else {
+                                console.log(`No target cell found for event`);
+                            }
+                        }); // End of finalEvents.forEach
+                    } else {
+                        console.log(`No grid entries found for day ${dayIndex}`);
+                    }
+                });
+            } else {
+                console.log('No days found in data:', data);
+            }
+        }
+
+        // Function to fetch data from API
+        async function fetchCalendarData(weekStart = null) {
+            if (!weekStart) {
+                weekStart = currentWeekStart || getCurrentWeekStart();
+            }
+            
+            const weekEnd = getWeekEnd(weekStart);
+            const apiUrl = buildAPIUrl(weekStart);
+            
+            try {
+                console.log('Fetching from:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: API_HEADERS,
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                let data = await response.json();
+                
+                // Handle CORS proxy response format
+                // corsproxy.io returns the response directly, no unwrapping needed
+                // allorigins would wrap in 'contents' field, but we're not using it anymore
+                
+                console.log('API Response:', data);
+                
+                // Clear existing events before populating new ones
+                clearCalendarEvents();
+                populateCalendar(data);
+                
+            } catch (error) {
+                console.error('Error fetching calendar data:', error);
+                
+                // Show error message to user
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #e74c3c;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 5px;
+                    z-index: 1000;
+                    max-width: 300px;
+                `;
+                errorDiv.innerHTML = `
+                    <strong>Error loading calendar data:</strong><br>
+                    ${error.message}<br>
+                    <small>Check console for details</small>
+                `;
+                document.body.appendChild(errorDiv);
+                
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    if (errorDiv.parentNode) {
+                        errorDiv.parentNode.removeChild(errorDiv);
+                    }
+                }, 5000);
+            }
+        }
+        
+        // Function to clear existing events from calendar
+        function clearCalendarEvents() {
+            const dayColumns = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            dayColumns.forEach(day => {
+                const column = document.getElementById(`${day}-column`);
+                if (column) {
+                    const events = column.querySelectorAll('.event');
+                    events.forEach(event => event.remove());
+                }
+            });
+        }
+        
+        // Function to navigate to a specific week
+        function navigateToWeek(weekStart) {
+            currentWeekStart = weekStart;
+            updateWeekDisplay(weekStart);
+            updateURLWithWeek(weekStart); // Preserve URL parameters
+            fetchCalendarData(weekStart);
+        }
+
+        // Add click functionality to calendar cells
+        function addCellClickHandlers() {
+            document.querySelectorAll('.calendar-cell').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    // Remove existing selection
+                    document.querySelectorAll('.calendar-cell').forEach(c => c.classList.remove('selected'));
+                    
+                    // Add selection to clicked cell
+                    this.classList.add('selected');
+                    
+                    // You can add more functionality here, like opening a modal for adding events
+                    console.log('Cell clicked:', this);
+                });
+            });
+        }
+
+        // Function to generate time labels and calendar cells
+        function generateCalendarGrid() {
+            const timeColumn = document.getElementById('time-column');
+            const dayColumnIds = ['monday-column', 'tuesday-column', 'wednesday-column', 'thursday-column', 'friday-column'];
+            const dayColumns = dayColumnIds.map(id => document.getElementById(id));
+            
+            // Clear existing content
+            timeColumn.innerHTML = '';
+            dayColumns.forEach(column => column.innerHTML = '');
+            
+            // Generate time labels and cells
+            timeSlots.forEach((time, index) => {
+                // Add time label
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                timeLabel.textContent = time;
+                timeColumn.appendChild(timeLabel);
+                
+                // Add calendar cells for each day
+                dayColumns.forEach(column => {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell empty-cell';
+                    column.appendChild(cell);
+                });
+            });
+        }
+
+        // Initialize calendar when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Calendar page loaded');
+            
+            // Initialize current week
+            currentWeekStart = getCurrentWeekStart();
+            updateWeekDisplay(currentWeekStart);
+            
+            // Generate calendar grid
+            generateCalendarGrid();
+            
+            // Add click handlers
+            addCellClickHandlers();
+            
+            // Add navigation button event listeners
+            document.getElementById('prevWeek').addEventListener('click', function() {
+                const prevWeek = getPreviousWeek(currentWeekStart);
+                navigateToWeek(prevWeek);
+            });
+            
+            document.getElementById('nextWeek').addEventListener('click', function() {
+                const nextWeek = getNextWeek(currentWeekStart);
+                navigateToWeek(nextWeek);
+            });
+            
+            // Fetch data for current week
+            fetchCalendarData(currentWeekStart);
+        });
+    </script>
+
+    <style>
+        .calendar-cell.selected {
+            background-color: #3498db !important;
+            color: white;
+        }
+
+        .event {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .event:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .event.green {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .event.yellow {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .event.blue {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .event.purple {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .event.orange {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+        }
+
+        .event.teal {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+        }
+
+        .event.brown {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+        }
+
+        .event.pink {
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+        }
+
+        .event.gray {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        /* Canceled event styles */
+        .event.canceled {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .event.canceled::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.3) 2px,
+                rgba(255, 255, 255, 0.3) 4px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .event.canceled::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -2px;
+            right: -2px;
+            bottom: 0;
+            background: linear-gradient(
+                45deg,
+                transparent 46%,
+                rgba(255, 255, 255, 0.8) 47%,
+                rgba(255, 255, 255, 0.8) 53%,
+                transparent 54%
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .canceled-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 8px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1px 3px;
+            border-radius: 2px;
+            z-index: 3;
+        }
+
+        /* Muted color variants for canceled events */
+        .event.green.canceled {
+            background: linear-gradient(135deg, #7a9a7a, #6b8e6b);
+        }
+
+        .event.yellow.canceled {
+            background: linear-gradient(135deg, #c4a347, #b8944a);
+        }
+
+        .event.blue.canceled {
+            background: linear-gradient(135deg, #6b8db5, #5a7ca3);
+        }
+
+        .event.purple.canceled {
+            background: linear-gradient(135deg, #8a6b9a, #7a5c8a);
+        }
+
+        .event.orange.canceled {
+            background: linear-gradient(135deg, #c47347, #b8664a);
+        }
+
+        .event.teal.canceled {
+            background: linear-gradient(135deg, #4a9a8a, #42857a);
+        }
+
+        .event.brown.canceled {
+            background: linear-gradient(135deg, #7a5c42, #6b4f3a);
+        }
+
+        .event.pink.canceled {
+            background: linear-gradient(135deg, #c4477a, #b8426b);
+        }
+
+        .event.gray.canceled {
+            background: linear-gradient(135deg, #7a8285, #6b7073);
+        }
+
+        /* Changed/Substituted event styles */
+        .event.changed {
+            border: 2px solid #f39c12;
+            position: relative;
+        }
+
+        .event.changed::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                135deg,
+                transparent,
+                transparent 3px,
+                rgba(243, 156, 18, 0.2) 3px,
+                rgba(243, 156, 18, 0.2) 6px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .changed-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 7px;
+            font-weight: bold;
+            color: #fff;
+            background: #f39c12;
+            padding: 1px 3px;
+            border-radius: 2px;
+            z-index: 3;
+        }
+
+        .original-info {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 2px;
+            font-style: italic;
+            line-height: 1.1;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+
+        .event-title {
+            font-weight: 700;
+            margin-bottom: 2px;
+            line-height: 1.1;
+        }
+
+        .event-subtitle {
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 1px;
+            line-height: 1.1;
+        }
+
+        .event-location {
+            font-weight: 400;
+            opacity: 0.8;
+            font-size: 10px;
+            line-height: 1.1;
+        }
+
+        .calendar-cell {
+            position: relative;
+        }
+    </style>
+</body>
+</html>
