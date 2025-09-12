@@ -53,10 +53,7 @@
         }
 
 
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: 60px repeat(5, 1fr);
-        }
+        /* Grid definition moved to responsive section below */
 
         .time-column {
             background: #f8f9fa;
@@ -182,7 +179,7 @@
             gap: 20px;
         }
 
-        /* Horizontal scrolling for all screen sizes */
+        /* Responsive calendar container */
         .calendar-scroll-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -190,17 +187,47 @@
             background: white;
         }
         
-        /* Ensure calendar grid has minimum width */
+        /* Make calendar grid fully responsive */
+        .calendar-grid {
+            width: 100%;
+            min-width: 100%;
+            display: grid;
+            grid-template-columns: minmax(60px, 80px) repeat(5, 1fr);
+        }
+        
+        /* Responsive adjustments for different screen sizes */
+        @media (min-width: 1400px) {
+            .calendar-grid {
+                grid-template-columns: 100px repeat(5, 1fr);
+            }
+            
+            .time-label {
+                font-size: 11px;
+            }
+            
+            .day-header {
+                font-size: 16px;
+                padding: 18px;
+            }
+        }
+        
         @media (max-width: 1200px) {
             .calendar-grid {
-                min-width: 800px;
-                width: max-content;
+                grid-template-columns: 70px repeat(5, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .calendar-grid {
+                grid-template-columns: 60px repeat(5, 1fr);
             }
         }
 
         /* Mobile responsive styles */
         @media (max-width: 768px) {
-            
+            .calendar-header {
+                padding: 15px;
+            }
             
             .week-navigation {
                 justify-content: center;
@@ -221,16 +248,15 @@
                 min-width: auto;
             }
             
-            /* Mobile calendar adjustments */
+            /* Mobile calendar adjustments - keep responsive grid */
             .calendar-grid {
-                min-width: 800px; /* Minimum width to ensure readability */
-                grid-template-columns: 50px repeat(5, 1fr); /* Even narrower time column on mobile */
+                grid-template-columns: 50px repeat(5, 1fr);
             }
             
             /* Adjust time labels for mobile */
             .time-label {
-                font-size: 9px !important;
-                padding: 1px !important;
+                font-size: 9px;
+                padding: 1px;
                 writing-mode: horizontal-tb;
                 line-height: 1;
             }
@@ -248,26 +274,57 @@
                 min-height: 20px;
             }
             
-            .event .event-subject {
+            .event-title {
                 font-size: 10px;
                 font-weight: 600;
             }
             
-            .event .event-teacher {
+            .event-subtitle {
                 font-size: 9px;
             }
             
-            .event .event-room {
+            .event-location {
                 font-size: 9px;
             }
         }
 
         @media (max-width: 480px) {
-            
+            .calendar-header {
+                padding: 10px;
+            }
             
             .nav-button {
                 font-size: 12px;
                 padding: 8px 10px;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: 45px repeat(5, 1fr);
+            }
+            
+            .time-label {
+                font-size: 8px;
+            }
+            
+            .day-header {
+                font-size: 11px;
+                padding: 6px 2px;
+            }
+        }
+        
+        /* Additional responsive improvements */
+        @media (max-width: 360px) {
+            .calendar-grid {
+                grid-template-columns: 40px repeat(5, 1fr);
+            }
+            
+            .time-label {
+                font-size: 7px;
+            }
+            
+            .day-header {
+                font-size: 10px;
+                padding: 4px 1px;
             }
         }
     </style>
