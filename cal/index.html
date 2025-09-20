@@ -589,7 +589,7 @@
             // First priority: events in preferred rooms
             for (const preferredRoom of preferredRooms) {
                 const eventInPreferredRoom = events.find(event => {
-                    const room = event.position3 && event.position3[0] ? event.position3[0].current.displayName : '';
+                    const room = event.position3 && event.position3[0] && event.position3[0].current ? event.position3[0].current.displayName : '';
                     return room === preferredRoom;
                 });
                 if (eventInPreferredRoom) {
